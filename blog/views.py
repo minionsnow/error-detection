@@ -6,6 +6,9 @@ refe=[]
 
 def home(request):
     refe[:]=[]
+    with open('summary.txt','w') as fs:
+        fs.truncate()
+    fs.close()
     if request.method=='POST':
         print(refe)
         form=ContactForm(request.POST)
@@ -29,4 +32,5 @@ def output(request):
     with open('summary.txt') as fs:
         data=fs.read()
     data = data.replace('\n', "<br />");
+    fs.close()
     return render(request, 'blog/run.html', {'data':data})
