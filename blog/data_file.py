@@ -1,0 +1,18 @@
+LCs={1:{'board':'A9K-16X100GE-TR','2':'','lc':'0','port':'48'},
+     2:{'board':'','2':'','lc':'','port':''}}
+RSPs={0:{'board':'A9K-RSP880-SE','connection':'EOBC',},
+      1:{'board':'A9K-RSP880-SE','connection':'PUNT',},
+      2:{'board':'A9K-RSP880-SE','connection':'CHA 0',},
+      3:{'board':'A9K-RSP880-SE','connection':'CHA 1',},
+      4:{'board':'A9K-RSP880-SE','connection':'CHA 2',},
+      5:{'board':'A9K-RSP880-SE','connection':'CHA 3',},
+      6:{'board':'A9K-RSP880-SE','connection':'CHA 4',},
+      7:{'board':'A9K-RSP880-SE','connection':'CHA 5',},
+      8:{'board':'A9K-RSP880-SE','connection':'CHA 6',},
+      9:{'board':'A9K-RSP880-SE','connection':'CHA 7',},
+      10:{'board':'A9K-RSP880-LT-TR','connection':'EOBC',},
+      11:{'board':'A9K-RSP880-LT-TR','connection':'PUNT',},
+      12:{'board':'A9K-RSP880-LT-TR','connection':'TOR PL0',},
+      13:{'board':'A9K-RSP880-LT-TR','connection':'TOR PL1',},
+      14:{'board':'A9K-RSP880-LT-TR','connection':'TOR PL2',},
+      15:{'board':'A9K-RSP880-LT-TR','connection':'TOR PL3',}}

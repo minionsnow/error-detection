@@ -1,0 +1,29 @@
+
+
+Summary:
+
+
+Case 1: Checking physical state of cards
+no error IN LCs
+no error IN RSPs
+
+Case 2: Checking connections of RSPs
+no drop in LC2 For 0/RSP0
+
+Case 3: Checking health of Cards by pinging them
+ping successful for 0/2 for Calvados
+ping successful for 0/2 for XR
+
+Case 4: Checking errors in VFs
+No problems in Calvados VF
+No problems in XR VF
+
+Case 5: Chcking errors in VLANs
+No error in RSPs ports
+No error in LCs ports
+
+Case 7: Fabric
+No Voq errors
+
+Case 8: Fabric_2
+No problems in process l2fib_mgr

@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Error detection & triaging automation</title>
+    </head>
+    <body>
+	<h2>Router Information</h2>
+        <form method = "post">
+        {% csrf_token %}
+	<table>
+        {{form.as_p}}
+	<tr colspan=2>
+        <button type="submit">Submit</button>
+	</tr>
+	</table>
+        </form>
+	<br/>
+	<button onclick="location.href='{% url 'script' %}'">Run</button><hr>
+        {% if data %}
+        {{data|safe}}
+        {% endif %}
+    </body>
+</html>
