@@ -78,7 +78,8 @@ time.sleep(1)
 tn.write(('terminal length 0\n').encode('utf-8'))
 tn.write('\n'.encode('utf-8'))
 Summary=[]
-Summary.append('\n\nSummary:\n\n')
+TestCases=[]
+Summary.append('\n\nSummary:\n')
 ################################################################
 
         #The command 'show platform' is used to find the active 
@@ -145,7 +146,7 @@ print(lcs)  #optional
 
 ################################################################
 
-Summary.append('\nCase 1: Checking physical state of cards\n')
+Summary.append('\nCase 1: Detect EOBC Link is Up.\n')
 command2="show controller switch summary location 0/RP"+activeRSP+"/RP-SW"
 tn.write('\n'.encode('utf-8'))
 tn.write((command2 + '\n').encode('utf-8'))
@@ -161,16 +162,19 @@ for i in range(len(lcs)):
         if match:
             if out3[j][6]!='U' :
                 Summary.append("error in LC"+lcs[i][0][2]+'\n')
+                TestCases.append(1)
             else :
                 Summary.append("no error IN LCs\n")
 if len(rsps)==0:
     Summary.append('both the RPs are not operational\n')
+    TestCases.append(1)
 elif len(rsps)>1:
     for i in range(len(out3)):
         match=re.search('PEER RP',out3[i])
         if match:
             if out3[i][6]!='U' or out3[i+3][6]!='U':
                 Summary.append("error in RSP"+n_activeRSP+'\n')
+                TestCases.append(1)
                 break
             else :
                 Summary.append("no error IN RSPs\n")
@@ -189,7 +193,7 @@ else :
 with open('stat_det.txt') as fs:
     out_stat_det_1= fs.read().splitlines()'''
 
-Summary.append('\nCase 2: Checking connections of RSPs\n')
+Summary.append('\nCase 2: Detecting drops in EOBC\n')
 for i in range (len(rsps)):
     command3="show controller switch statistics location 0/RP"+rsps[i][0][5]+"/RP-SW"
     tn.write((command3 + '\n').encode('utf-8'))
@@ -217,9 +221,11 @@ for i in range (len(rsps)):
                     else:
                         if out_stat_loc_2[5]!='0':
                             Summary.append('Tx drop in '+RSPs[j]['connection']+' : Reason : \n')
+                            TestCases.append(2)
                             flag_tx=1
                         if out_stat_loc_2[6]!='0':
                             Summary.append('Rx drop in '+RSPs[j]['connection']+' : Reason : \n')
+                            TestCases.append(2)
                             flag_rx=1
                         if flag_tx!=0 or flag_rx!=0:
                             command4="show controller switch statistics detail location 0/RP"+rsps[i][0][5]+"/RP-SW "+port
@@ -243,8 +249,8 @@ for i in range (len(rsps)):
                                     out_stat_det_2=out_stat_det_1[l].split()
                                     if out_stat_det_2[-1]!='0':
                                         Summary.append('\tRx Policing Drops\n')
-                                    if flag_tx==0 and flag_rx==0:
-                                        Summary.append('no drop in '+RSPs[j]['connection']+' For '+rsps[i][0]+'\n')
+                    if flag_tx==0 and flag_rx==0:
+                        Summary.append('no drop in '+RSPs[j]['connection']+' For '+rsps[i][0]+'\n')
     for j in range (len(lcs)):
         for k in range (len(out_stat_loc_1)):
             match=re.search('LC'+lcs[j][0][2],out_stat_loc_1[k])
@@ -258,9 +264,11 @@ for i in range (len(rsps)):
                 else:
                     if out_stat_loc_2[5]!='0':
                         Summary.append('Tx drop in '+'LC'+lcs[j][0][2]+' : Reason : \n')
+                        TestCases.append(2)
                         flag_tx=1
                     if out_stat_loc_2[6]!='0':
                         Summary.append('Rx drop in '+'LC'+lcs[j][0][2]+' : Reason : \n')
+                        TestCases.append(2)
                         flag_rx=1
                     if flag_tx!=0 or flag_rx!=0:
                         command4="show controller switch statistics detail location 0/RP"+rsps[i][0][5]+"/RP-SW "+port
@@ -307,7 +315,7 @@ for i in range (len(rsps)):
 
 ################################################################
 
-Summary.append('\nCase 3: Checking health of Cards by pinging them\n')
+Summary.append('\nCase 3: Detect VMs liveliness\n')
 lcs_ip=[]
 rsps_ip=[]
 if len(lcs)==0 and len(rsps)==1:
@@ -362,6 +370,7 @@ else:
             Summary.append('ping successful for '+lcs_ip[i][0]+' for '+ lcs_ip[i][2]+'\n')
         else:
             Summary.append('ping unsuccessful for '+lcs_ip[i][0]+' for '+ lcs_ip[i][2]+'\n')
+            TestCases.append(3)
     for i in range(len(rsps_ip)):
         tn.write(('chvrf 0 ping '+rsps_ip[i][1]+' -c 2' + '\n').encode('utf-8'))
         time.sleep(3)
@@ -371,6 +380,7 @@ else:
             Summary.append('ping successful for '+rsps_ip[i][0]+' for '+ rsps_ip[i][2]+'\n')
         else:
             Summary.append('ping unsuccessful for '+rsps_ip[i][0]+' for '+ rsps_ip[i][2]+'\n')
+            TestCases.append(3)
     tn.write(('exit'+'\n').encode('utf-8'))
     time.sleep(2)
 
@@ -389,7 +399,7 @@ else:
 
 ################################################################
 
-Summary.append('\nCase 4: Checking errors in VFs\n')
+Summary.append('\nCase 4: Checking EOBC Traffic Issues from Virtual Functions perspective.\n')
 tn.write(('run' + '\n').encode('utf-8'))	# to get into calvados shell
 time.sleep(1)
 tn.write(('chvrf -0 ifconfig' + '\n').encode('utf-8'))	# ports information
@@ -408,24 +418,28 @@ for i in range(len(out_vf_cal_1)):
                     if match2==None:
                         flag_vf_cal=1
                         Summary.append('\terror in calvados vf\n')
+                        TestCases.append(4)
                 match1=re.search('dropped',out_vf_cal_1[j])
                 if match1:
                     match2=re.search('dropped:0',out_vf_cal_1[j])
                     if match2==None:
                         flag_vf_cal=1
                         Summary.append('\tdrops in calvados vf\n')
+                        TestCases.append(4)
                 match1=re.search('overruns',out_vf_cal_1[j])
                 if match1:
                     match2=re.search('overruns:0',out_vf_cal_1[j])
                     if match2==None:
                         flag_vf_cal=1
                         Summary.append('\toverruns in calvados vf\n')
+                        TestCases.append(4)
                 match1=re.search('frame',out_vf_cal_1[j])
                 if match1:
                     match2=re.search('frame:0',out_vf_cal_1[j])
                     if match2==None:
                         flag_vf_cal=1
                         Summary.append('\tframesin calvados vf\n')
+                        TestCases.append(4)
                     break
         break
 if flag_vf_cal==0:
@@ -452,18 +466,21 @@ for i in range(len(out_vf_xr_1)):
                 if match2==None:
                     flag_vf_xr=1
                     Summary.append('\terror in xr vf(3073)\n')
+                    TestCases.append(4)
             match1=re.search('overruns',out_vf_xr_1[j])
             if match1:
                 match2=re.search('overruns:0',out_vf_xr_1[j])
                 if match2==None:
                     flag_vf_xr=1
                     Summary.append('\toverruns in xr vf(3073)\n')
+                    TestCases.append(4)
             match1=re.search('frame',out_vf_xr_1[j])
             if match1:
                 match2=re.search('frame:0',out_vf_xr_1[j])
                 if match2==None:
                     flag_vf_xr=1
                     Summary.append('\tframes in xr vf(3073)\n')
+                    TestCases.append(4)
                 break
     match=re.search('eth-vf1.3074',out_vf_xr_1[i])	# virtual port to connect to xr
     if match:
@@ -474,24 +491,28 @@ for i in range(len(out_vf_xr_1)):
                 if match2==None:
                     flag_vf_xr=1
                     Summary.append('\terror in xr vf(3074)\n')
+                    TestCases.append(4)
             match1=re.search('dropped',out_vf_xr_1[j])
             if match1:
                 match2=re.search('dropped:0',out_vf_xr_1[j])
                 if match2==None:
                     flag_vf_xr=1
                     Summary.append('\tdrops in xr vf(3074)\n')
+                    TestCases.append(4)
             match1=re.search('overruns',out_vf_xr_1[j])
             if match1:
                 match2=re.search('overruns:0',out_vf_xr_1[j])
                 if match2==None:
                     flag_vf_xr=1
                     Summary.append('\toverruns in xr vf(3074)\n')
+                    TestCases.append(4)
             match1=re.search('frame:0',out_vf_xr_1[j])
             if match1:
                 match2=re.search('frame:0',out_vf_xr_1[j])
                 if match2==None:
                     flag_vf_xr=1
                     Summary.append('\tframesin xr vf(3074)\n')
+                    TestCases.append(4)
                 break
         break
 if flag_vf_xr==0:
@@ -506,7 +527,7 @@ time.sleep(2)
 	#Case 5:
 
 ################################################################
-Summary.append('\nCase 5: Chcking errors in VLANs\n')
+Summary.append('\nCase 5: Detect VLAN mapping discrepancy.\n')
 rsps_port=[]
 lcs_port=[]
 blue_ports=['2049','2050']
@@ -561,11 +582,13 @@ for i in range (len(rsps_port)):
                             if match2==None:
                                 flag_vlan_rsps=1
                                 Summary.append('error in red_port '+red_ports[l]+' in RSP'+rsps_port[i][0][5]+'\n')
+                                TestCases.append(5)
                         else :
                             match2=re.search('Translate',out_vlan_1[k])
                             if match2==None:
                                 flag_vlan_rsps=1
                                 Summary.append('error in red_port '+red_ports[l]+' in RSP'+rsps_port[i][0][5]+'\n')
+                                TestCases.append(5)
                 for l in range (len(blue_ports)):
                     match1=re.search(blue_ports[l],out_vlan_1[k])
                     if match1 and out_vlan_1[k][0]==' ':
@@ -574,11 +597,13 @@ for i in range (len(rsps_port)):
                             if match2==None:
                                 flag_vlan_rsps=1
                                 Summary.append('error in blue_port '+blue_ports[l]+' in RSP'+rsps_port[i][0][5]+'\n')
+                                TestCases.append(5)
                         else :
                             match2=re.search('Translate',out_vlan_1[k])
                             if match2==None:
                                 flag_vlan_rsps=1
                                 Summary.append('error in blue_port '+blue_ports[l]+' in RSP'+rsps_port[i][0][5]+'\n')
+                                TestCases.append(5)
             break
 
 if flag_vlan_rsps==0:
@@ -606,11 +631,13 @@ for i in range (len(lcs_port)):
                             if match2==None:
                                 flag_vlan_lcs=1
                                 Summary.append('error in red_port '+red_ports[l]+' in LC'+lcs_port[i][0][2]+'\n')
+                                TestCases.append(5)
                         else :
                             match2=re.search('Translate',out_vlan_1[k])
                             if match2==None:
                                 flag_vlan_lcs=1
                                 Summary.append('error in red_port '+red_ports[l]+' in LC'+lcs_port[i][0][2]+'\n')
+                                TestCases.append(5)
                 for l in range (len(blue_ports)):
                     match1=re.search(blue_ports[l],out_vlan_1[k])
                     if match1 and out_vlan_1[k][0]==' ':
@@ -619,11 +646,13 @@ for i in range (len(lcs_port)):
                             if match2==None:
                                 flag_vlan_lcs=1
                                 Summary.append('error in blue_port '+blue_ports[l]+' in LC'+lcs_port[i][0][2]+'\n')
+                                TestCases.append(5)
                         else :
                             match2=re.search('Translate',out_vlan_1[k])
                             if match2==None:
                                 flag_vlan_lcs=1
                                 Summary.append('error in blue_port '+blue_ports[l]+' in LC'+lcs_port[i][0][2]+'\n')
+                                TestCases.append(5)
             break
 if flag_vlan_lcs==0 :
     Summary.append('No error in LCs ports\n')
@@ -659,7 +688,7 @@ time.sleep(1)'''
 with open('new_stats_1.txt') as fs:
     out_qdep_1= fs.read().splitlines()'''
 
-Summary.append('\nCase 7: Fabric\n')
+Summary.append('\nCase 6: Detect Stuck VQIs on LCs\n')
 tn.write(('exit'+'\n').encode('utf-8'))
 time.sleep(1)
 dest=[]
@@ -680,6 +709,7 @@ for i in range (len(lcs)):
                     if match1 :
                         break
                     else :
+                        TestCases.append(6)
                         out_qdep_2=out_qdep_1[k].split()
                         dest_lc=out_qdep_2[-1][2]
                         if dest_lc not in dest:
@@ -742,7 +772,7 @@ with open('logs_2.txt') as fa:
 with open('trace.txt') as fb:
     out_trace_1= fb.read().splitlines()'''
 
-Summary.append('\nCase 8: Fabric_2\n')
+Summary.append('\nCase 7: Triaging l2fib_mgr crash\n')
 tn.write(('exit'+'\n').encode('utf-8'))
 time.sleep(1)
 cmd_fablib='show  processes l2fib_mgr'
@@ -756,7 +786,7 @@ for i in range (len(out_fablib_1)):
     if match:
         out_fablib_2=out_fablib_1[i].split()
         count=out_fablib_2[-1]
-        time.sleep(10)
+        time.sleep(3)
         tn.write((cmd_fablib+'\n').encode('utf-8'))	
         time.sleep(3)
         out_fablib_3=tn.read_very_eager().decode('utf-8')
@@ -769,6 +799,7 @@ for i in range (len(out_fablib_1)):
                 count1=out_fablib_5[-1]
                 #print(count,count1)	
                 if count1!=count:
+                    TestCases.append(7)
                     cmd_logs='show logging | i abnormally terminated, restart scheduled'
                     tn.write((cmd_logs+'\n').encode('utf-8'))	
                     time.sleep(5)
@@ -829,9 +860,20 @@ for i in range (len(out_fablib_1)):
 tn.write(('admin'+'\n').encode('utf-8'))
 time.sleep(2)
 
+print(TestCases)
+TestCases=list(set(TestCases))
 Summary=''.join(Summary)
+f=open('results.txt','w')
+if len(TestCases)>0:
+    f.write('No. of Test Cases Passed = '+str(7-len(TestCases))+'\nNo. of Test Cases Failed = '+str(len(TestCases))+'\nFailed Test Cases:\n')
+    for i in range (7):
+        if i+1 in TestCases :
+            f.write('Test Case '+str(i+1)+'\n')
+else :
+    f.write('All Test Cases Passed\n\n')
+f.close()
 fs=open('summary.txt','w')
-fs.write(Summary)
+fs.write(Summary.strip())
 fs.close()
 print(Summary)
 tn.write(('exit'+'\n').encode('utf-8'))

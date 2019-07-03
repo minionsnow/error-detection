@@ -15,4 +15,12 @@ RSPs={0:{'board':'A9K-RSP880-SE','connection':'EOBC',},
       12:{'board':'A9K-RSP880-LT-TR','connection':'TOR PL0',},
       13:{'board':'A9K-RSP880-LT-TR','connection':'TOR PL1',},
       14:{'board':'A9K-RSP880-LT-TR','connection':'TOR PL2',},
-      15:{'board':'A9K-RSP880-LT-TR','connection':'TOR PL3',}}
+      15:{'board':'A9K-RSP880-LT-TR','connection':'TOR PL3',},
+      16:{'board':'A9K-RSP880-LT-TR','connection':'TPA',},
+      17:{'board':'A9K-RSP880-LT-SE','connection':'EOBC',},
+      18:{'board':'A9K-RSP880-LT-SE','connection':'PUNT',},
+      19:{'board':'A9K-RSP880-LT-SE','connection':'TOR PL0',},
+      20:{'board':'A9K-RSP880-LT-SE','connection':'TOR PL1',},
+      21:{'board':'A9K-RSP880-LT-SE','connection':'TOR PL2',},
+      22:{'board':'A9K-RSP880-LT-SE','connection':'TOR PL3',},
+      23:{'board':'A9K-RSP880-LT-SE','connection':'TPA',},}
